@@ -11,6 +11,8 @@ class BussLocationSupplier extends Component {
     super();
 
     this.state = {
+      stompClient: null,
+      intervalId: null,
       value: '',
       coordinates: [],
       coordinatePosition: 0
@@ -18,10 +20,20 @@ class BussLocationSupplier extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.send = this.send.bind(this);
+    this.disconnect = this.disconnect.bind(this);
   }
 
   componentDidMount() {
     // this.getDirections("46.771556,23.626013", "46.753446,23.533058");
+
+    let socket = new SockJS(`${SERVER_URL}/locations`);
+    let stompClient = Stomp.over(socket);
+    this.setState({stompClient});
+
+    stompClient.connect({},
+      frame => console.log('Connected: ' + frame),
+      error => console.log(`error websocket ${error}`)
+    );
   }
 
   async getDirections(startLoc, destinationLoc) {
@@ -50,27 +62,29 @@ class BussLocationSupplier extends Component {
     this.setState({value: event.target.value});
   }
 
-  _newCoordinate(stompClient) {
+  _newCoordinate() {
     let newLocation = generateLocation(this.state.value, this.state.coordinatePosition);
 
-    stompClient.send(`/app/new-coordinate/${this.state.value}`, {}, JSON.stringify(newLocation.payload));
+    this.state.stompClient.send(`/app/new-coordinate/${this.state.value}`, {}, JSON.stringify(newLocation.payload));
     this.setState({coordinatePosition: newLocation.nextPosition});
   }
 
   send(e) {
     e.preventDefault();
 
-    let socket = new SockJS(`${SERVER_URL}/locations`);
-    let stompClient = Stomp.over(socket);
+    let intervalId = setInterval(() => this._newCoordinate(), 2000);
+    this.setState({intervalId});
 
-    stompClient.connect({},
-      frame => {
-        console.log('Connected: ' + frame);
-        setInterval(() => this._newCoordinate(stompClient), 5000);
-      },
-      error => console.log(`error websocket ${error}`)
+    this.state.stompClient.subscribe('/topic/line.*', coordinate =>
+      console.log("--------------- coordinate received: " + coordinate)
     );
+  }
 
+  disconnect() {
+    console.log("disconnecting...");
+
+    this.state.stompClient.disconnect();
+    clearInterval(this.state.intervalId);
   }
 
   render() {
@@ -81,6 +95,7 @@ class BussLocationSupplier extends Component {
           <input type="text" value={this.state.value} onChange={this.handleChange}/>
         </label>
         <input type="submit" value="Submit"/>
+        <button type="button" onClick={this.disconnect}>Disconnect</button>
       </form>
     );
   }
