@@ -461,24 +461,119 @@ const coordinates = [
   {longitude: 23.55677, latitude: 46.75524}
 ];
 
-const coord2 = [
-  {latitude: 46.771614, longitude: 23.626184},
-  {latitude: 46.778962, longitude: 23.616657},
-  {latitude: 46.774025, longitude: 23.597603},
-  {latitude: 46.763737, longitude: 23.573484},
-  {latitude: 46.759033, longitude: 23.550568},
-  {latitude: 46.753211, longitude: 23.533058}
-];
+const coord2 = {
+  '25': [
+    {
+      latitude: 46.771379,
+      longitude: 23.626056
+    },
+    {
+      latitude: 46.77423,
+      longitude: 23.621807
+    },
+    {
+      latitude: 46.779197,
+      longitude: 23.617001
+    },
+    {
+      latitude: 46.778257,
+      longitude: 23.611765
+    },
+    {
+      latitude: 46.776258,
+      longitude: 23.604898
+    },
+    {
+      latitude: 46.773672,
+      longitude: 23.597517
+    },
+    {
+      latitude: 46.76991,
+      longitude: 23.586788
+    },
+    {
+      latitude: 46.766617,
+      longitude: 23.580179
+    },
+    {
+      latitude: 46.764148,
+      longitude: 23.573313
+    },
+    {
+      latitude: 46.761208,
+      longitude: 23.564129
+    },
+    {
+      latitude: 46.759092,
+      longitude: 23.55082
+    },
+    {
+      latitude: 46.757798,
+      longitude: 23.545847
+    },
+    {
+      latitude: 46.751859,
+      longitude: 23.542929
+    }
+  ],
+  '4': [
+    {
+      "name": "IRA",
+      "latitude": 46.782606,
+      "longitude": 23.637686
+    },
+    {
+      "name": "Aurel Vlaicu",
+      "latitude": 46.780961,
+      "longitude": 23.627472
+    },
+    {
+      "name": "Arte Plastice",
+      "latitude": 46.779197,
+      "longitude": 23.617001
+    },
+    {
+      "name": "Piata Marasti",
+      "latitude": 46.778257,
+      "longitude": 23.611765
+    },
+    {
+      "name": "Somesul",
+      "latitude": 46.776258,
+      "longitude": 23.604898
+    },
+    {
+      "name": "Regionala CFR",
+      "latitude": 46.773672,
+      "longitude": 23.597517
+    },
+    {
+      "name": "Sora",
+      "latitude": 46.77185,
+      "longitude": 23.591938
+    },
+    {
+      "name": "Horea",
+      "latitude": 46.778081,
+      "longitude": 23.587475
+    },
+    {
+      "name": "Piata Garii",
+      "latitude": 46.784487,
+      "longitude": 23.588333
+    }
+  ]
+};
 
 export function generateLocation(value, position) {
-  let nextPosition = position < coord2.length - 1 ? position + 1 : 0;
-  console.log("nextPostion", nextPosition);
+  let nextPosition = position < coord2[value].length - 1 ? position + 1 : 0;
+  console.log("nextPostion ", nextPosition, "for ", value);
 
   return {
     nextPosition: nextPosition,
     payload: {
       line: value,
-      coordinate: coord2[position]
+      coordinates: coord2[value][position]
     }
   }
 }

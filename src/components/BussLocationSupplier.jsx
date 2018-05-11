@@ -13,9 +13,13 @@ class BussLocationSupplier extends Component {
     this.state = {
       stompClient: null,
       intervalId: null,
+
       value: '',
+      activeLines: [],
       coordinates: [],
-      coordinatePosition: 0
+      coordinatePosition: {
+        'default': 0
+      }
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -63,21 +67,38 @@ class BussLocationSupplier extends Component {
   }
 
   _newCoordinate() {
-    let newLocation = generateLocation(this.state.value, this.state.coordinatePosition);
+    this.state.activeLines.forEach(line => this._sendCoord(line));
+  }
 
-    this.state.stompClient.send(`/app/new-coordinate/${this.state.value}`, {}, JSON.stringify(newLocation.payload));
-    this.setState({coordinatePosition: newLocation.nextPosition});
+  _sendCoord(line) {
+    let coordinatePosition = Object.assign({}, this.state.coordinatePosition);
+
+    let newLocation = generateLocation(line, coordinatePosition[line]);
+
+    this.state.stompClient.send(`/app/new-coordinate/${line}`, {}, JSON.stringify(newLocation.payload));
+
+    coordinatePosition[line] = newLocation.nextPosition;
+    this.setState({coordinatePosition});
   }
 
   send(e) {
     e.preventDefault();
 
-    let intervalId = setInterval(() => this._newCoordinate(), 2000);
-    this.setState({intervalId});
+    let value = this.state.value;
+    let activeLines = [...this.state.activeLines, value];
+    let coordinatePosition = Object.assign({}, this.state.coordinatePosition);
+    coordinatePosition[value] = 0;
 
-    this.state.stompClient.subscribe('/topic/line.*', coordinate =>
-      console.log("--------------- coordinate received: " + coordinate)
-    );
+    let intervalId = setInterval(() => this._newCoordinate(), 5000);
+    this.setState({
+      intervalId,
+      activeLines,
+      coordinatePosition
+    });
+
+    // this.state.stompClient.subscribe('/topic/line.*', coordinate =>
+    //   console.log("--------------- coordinate received: " + coordinate)
+    // );
   }
 
   disconnect() {
