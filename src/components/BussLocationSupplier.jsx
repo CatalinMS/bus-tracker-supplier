@@ -89,16 +89,13 @@ class BussLocationSupplier extends Component {
     let coordinatePosition = Object.assign({}, this.state.coordinatePosition);
     coordinatePosition[value] = 0;
 
-    let intervalId = setInterval(() => this._newCoordinate(), 5000);
+    let intervalId = setInterval(() => this._newCoordinate(), 3000);
     this.setState({
       intervalId,
       activeLines,
       coordinatePosition
     });
 
-    // this.state.stompClient.subscribe('/topic/line.*', coordinate =>
-    //   console.log("--------------- coordinate received: " + coordinate)
-    // );
   }
 
   disconnect() {
